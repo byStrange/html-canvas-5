@@ -4,13 +4,41 @@ var fullX = innerWidth
 
 var fullY = innerHeight
 
-const circleCount = 50
+const circleCount = 800
 
-c.width = fullX;
+const distance = 50
 
-c.height = fullY;
+const maxRadius = 40
 
 
+
+const colors = [
+    '#EA5C2B',
+    '#FF7F3F',
+    '#F6D860',
+    '#95CD41' /*You can put your color palette here*/
+];
+
+const stroke = false
+
+const clear = true
+
+function setSize() {
+    c.width = fullX;
+    c.height = fullY;
+}
+setSize()
+
+let mouse = {
+    x: undefined,
+    y: undefined
+}
+
+window.addEventListener('mousemove', function(e){
+    mouse.x = e.x
+    mouse.y = e.y
+})
+window.addEventListener('resize', setSize)
 function hexColor() {
     return "#" + (
         Math.floor(
@@ -59,6 +87,8 @@ function Circle(x, y, r, spx, spy) {
 	this.rad = r
 	this.speedX = spx
 	this.speedY = spy
+    this.color =  colors[_random(colors.length)]
+    this.minRadius = r
 	this.draw = function() {
 		ctx.beginPath();
 		ctx.strokeStyle = hexColor()
@@ -66,8 +96,12 @@ function Circle(x, y, r, spx, spy) {
 			this.x,this.y,
 			this.rad, 0,Math.PI * 2
 		)
-		ctx.stokeStyle = 'red'
-		ctx.stroke()
+
+        stroke ? ctx.stroke() : console.log()
+        
+        ctx.fillStyle = this.color
+        
+        ctx.fill()
 	}
 
 
@@ -83,6 +117,16 @@ function Circle(x, y, r, spx, spy) {
  		
  		this.x += this.speedX;
 		this.y += this.speedY;
+        let rad = this.rad
+        if (mouse.x - this.x < distance && mouse.x - this.x > -distance && mouse.y - this.y < distance && mouse.y - this.y > -distance) {
+            if (this.rad < maxRadius) {
+                this.rad += 8
+            }
+        } else if (this.rad > this.minRadius) {
+            this.rad -= 1
+        }
+        
+        
 		this.draw()
 	}
 }
@@ -90,9 +134,9 @@ let circles = []
 for (let i = 0 ; i < circleCount; i++ ) {
 	let x = _random(fullX)
 	let y = _random(fullY)
-	let dx = (_random(1) - 0.5) * 8
-	let dy = (_random(1) - 0.5 ) * 8 
-	let rad = _random(30)
+	let dx = (_random(1) - 0.5) 
+	let dy = (_random(1) - 0.5 ) 
+	let rad = _random(10) + 1 
 	circles.push(
 		new Circle(
 			x, y, rad, dx , dy
@@ -102,7 +146,9 @@ for (let i = 0 ; i < circleCount; i++ ) {
 
 function me() {
 	requestAnimationFrame(me);
-	// ctx.clearRect(0, 0 , fullX, fullY)
+	 if (clear) {
+         ctx.clearRect(0, 0 , fullX, fullY)
+     }
 	circles.forEach(eachCircle => {
 		eachCircle.update()
 	})
